@@ -16,7 +16,42 @@ console.log("  ¡Bienvenido, " + userName + "!");
 console.log("  Próxima versión: v" + (version + 0.1).toFixed(1));
 console.log(separador);
 
-const tasks: string[] = [];
+interface Task {
+  id: number;
+  title: string;
+  completed: boolean;
+}
+
+const tasks: Task[] = [];
+let idCounter: number = 1;
+
+const addTask = (title: string): void => {
+  const newTask: Task = { id: idCounter, title: title, completed: false };
+  tasks.push(newTask);
+  idCounter++;
+  console.log(`Tarea agregada: "${newTask.title}" (id: ${newTask.id})`);
+};
+
+const listTasks = (): void => {
+  if (tasks.length === 0) {
+    console.log("No hay tareas cargadas.");
+  } else {
+    for (let i = 0; i < tasks.length; i++) {
+      const estado = tasks[i].completed ? "completed" : "pending";
+      console.log(`[${tasks[i].id}] ${tasks[i].title} - ${estado}`);
+    }
+  }
+};
+
+const removeTask = (): void => {
+  const eliminada = tasks.pop();
+  if (eliminada) {
+    console.log(`Tarea eliminada: "${eliminada.title}"`);
+  } else {
+    console.log("No hay tareas para eliminar.");
+  }
+};
+
 let running: boolean = true;
 
 while (running) {
@@ -30,23 +65,11 @@ while (running) {
 
   if (opcion === "1") {
     const titulo = await rl.question("Título de la tarea: ");
-    tasks.push(titulo);
-    console.log(`Tarea agregada: "${titulo}"`);
+    addTask(titulo);
   } else if (opcion === "2") {
-    const eliminada = tasks.pop();
-    if (eliminada) {
-      console.log(`Tarea eliminada: "${eliminada}"`);
-    } else {
-      console.log("No hay tareas para eliminar.");
-    }
+    removeTask();
   } else if (opcion === "3") {
-    if (tasks.length === 0) {
-      console.log("No hay tareas cargadas.");
-    } else {
-      for (let i = 0; i < tasks.length; i++) {
-        console.log(`${i + 1}. ${tasks[i]}`);
-      }
-    }
+    listTasks();
   } else if (opcion === "4") {
     console.log("Saliendo...");
     running = false;
