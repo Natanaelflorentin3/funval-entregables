@@ -32,17 +32,6 @@ const addTask = (title: string): void => {
   console.log(`Tarea agregada: "${newTask.title}" (id: ${newTask.id})`);
 };
 
-const listTasks = (): void => {
-  if (tasks.length === 0) {
-    console.log("No hay tareas cargadas.");
-  } else {
-    for (let i = 0; i < tasks.length; i++) {
-      const estado = tasks[i].completed ? "completed" : "pending";
-      console.log(`[${tasks[i].id}] ${tasks[i].title} - ${estado}`);
-    }
-  }
-};
-
 const removeTask = (): void => {
   const eliminada = tasks.pop();
   if (eliminada) {
@@ -52,6 +41,39 @@ const removeTask = (): void => {
   }
 };
 
+const markCompleted = (id: number): void => {
+  const tarea = tasks.find(t => t.id === id);
+  if (tarea) {
+    tarea.completed = true;
+    console.log(`Tarea "${tarea.title}" marcada como completada.`);
+  } else {
+    console.log(`No se encontró ninguna tarea con id ${id}.`);
+  }
+};
+
+const filterPending = (): Task[] => {
+  return tasks.filter(t => t.completed === false);
+};
+
+const filterCompleted = (): Task[] => {
+  return tasks.filter(t => t.completed === true);
+};
+
+const listTasks = (): void => {
+  if (tasks.length === 0) {
+    console.log("No hay tareas cargadas.");
+    return;
+  }
+
+  const lineas = tasks.map(task => {
+    const { id, title, completed } = task;
+    const estado = completed ? "completed" : "pending";
+    return `[${id}] ${title} - ${estado}`;
+  });
+
+  lineas.forEach(linea => console.log(linea));
+};
+
 let running: boolean = true;
 
 while (running) {
@@ -59,7 +81,10 @@ while (running) {
   console.log("1. Agregar tarea");
   console.log("2. Eliminar última tarea");
   console.log("3. Listar tareas");
-  console.log("4. Salir");
+  console.log("4. Marcar tarea como completada");
+  console.log("5. Ver tareas pendientes");
+  console.log("6. Ver tareas completadas");
+  console.log("7. Salir");
 
   const opcion = await rl.question("Elegí una opción: ");
 
@@ -71,6 +96,23 @@ while (running) {
   } else if (opcion === "3") {
     listTasks();
   } else if (opcion === "4") {
+    const idInput = await rl.question("Id de la tarea a completar: ");
+    markCompleted(Number(idInput));
+  } else if (opcion === "5") {
+    const pendientes = filterPending();
+    if (pendientes.length === 0) {
+      console.log("No hay tareas pendientes.");
+    } else {
+      pendientes.forEach(({ id, title }) => console.log(`[${id}] ${title} - pending`));
+    }
+  } else if (opcion === "6") {
+    const completadas = filterCompleted();
+    if (completadas.length === 0) {
+      console.log("No hay tareas completadas.");
+    } else {
+      completadas.forEach(({ id, title }) => console.log(`[${id}] ${title} - completed`));
+    }
+  } else if (opcion === "7") {
     console.log("Saliendo...");
     running = false;
   } else {
