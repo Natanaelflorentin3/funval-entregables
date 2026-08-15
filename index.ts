@@ -25,11 +25,33 @@ interface Task {
 const tasks: Task[] = [];
 let idCounter: number = 1;
 
-const addTask = (title: string): void => {
-  const newTask: Task = { id: idCounter, title: title, completed: false };
-  tasks.push(newTask);
-  idCounter++;
-  console.log(`Tarea agregada: "${newTask.title}" (id: ${newTask.id})`);
+const saveToDB = (tarea: Task): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log(`Tarea "${tarea.title}" guardada en la base de datos.`);
+      resolve();
+    }, 2000);
+  });
+};
+
+const addTask = async (title: string): Promise<void> => {
+  try {
+    if (title.trim() === "") {
+      throw new Error("El título de la tarea no puede estar vacío.");
+    }
+
+    const newTask: Task = { id: idCounter, title: title, completed: false };
+    tasks.push(newTask);
+    idCounter++;
+
+    await saveToDB(newTask);
+
+    console.log(`Tarea agregada: "${newTask.title}" (id: ${newTask.id})`);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(`Error al agregar la tarea: ${error.message}`);
+    }
+  }
 };
 
 const removeTask = (): void => {
@@ -90,7 +112,7 @@ while (running) {
 
   if (opcion === "1") {
     const titulo = await rl.question("Título de la tarea: ");
-    addTask(titulo);
+    await addTask(titulo);
   } else if (opcion === "2") {
     removeTask();
   } else if (opcion === "3") {
